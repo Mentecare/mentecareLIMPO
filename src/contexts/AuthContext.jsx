@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // Configura a base URL para o Axios
-  axios.defaults.baseURL = import.meta.env.VITE_API_URL;;
+  axios.defaults.baseURL = `${import.meta.env.VITE_API_URL}/api`;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
