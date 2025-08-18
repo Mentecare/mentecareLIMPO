@@ -1,0 +1,14 @@
+# Força todo o tráfego do site a usar HTTPS
+[[redirects]]
+  from = "http://*"
+  to = "https://:splat"
+  status = 301
+  force = true
+
+# Redirecionamento para Single-Page Application (SPA)
+# Isso resolve o erro 404 ao recarregar a página
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  
