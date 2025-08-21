@@ -11,6 +11,7 @@ import Appointments from './pages/AppointmentsSimple';
 import BookAppointment from './pages/BookAppointment';
 import VideoCall from './pages/VideoCall';
 import Payment from './pages/Payment';
+import TestConnection from './pages/TestConnection'; // <--- ADICIONE ESTA LINHA
 import './App.css';
 
 function ProtectedRoute({ children }) {
@@ -60,6 +61,11 @@ function AppContent() {
               <Appointments />
             </ProtectedRoute>
           } />
+<Route path="/video/test" element={
+  <ProtectedRoute>
+    <TestConnection />
+  </ProtectedRoute>
+} />
           <Route path="/video-call/:appointmentId" element={
             <ProtectedRoute>
               <VideoCall />
