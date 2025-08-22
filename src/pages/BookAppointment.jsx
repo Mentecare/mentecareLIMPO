@@ -43,11 +43,12 @@ function BookAppointment() {
   ];
 
   useEffect(() => {
-    const profId = professionalId || searchParams.get('professional');
-    if (profId) {
-      fetchProfessional(profId);
+    // Prioriza professionalId da URL, depois searchParams
+    const idToFetch = professionalId || searchParams.get('professional');
+    if (idToFetch) {
+      fetchProfessional(idToFetch);
     } else {
-      toast.error('Profissional não especificado');
+      toast.error('Profissional não especificado para agendamento.');
       navigate('/professionals');
     }
   }, [professionalId, searchParams, navigate]);
@@ -65,27 +66,33 @@ function BookAppointment() {
       setProfessional(response.data.professional);
     } catch (error) {
       console.error('Erro ao carregar profissional:', error);
-      toast.error('Não foi possível carregar os dados do profissional.');
-      navigate('/professionals');
+      toast.error('Não foi possível carregar os dados do profissional. Redirecionando...');
+      setProfessional(null); // Garante que o estado seja nulo em caso de erro
+      navigate('/professionals'); // Redireciona em caso de erro
     } finally {
       setLoading(false);
     }
   };
 
   const fetchAvailableSlots = async (date) => {
+    if (!professional || !professional.id) { // Adiciona verificação aqui
+      console.warn('Profissional não carregado para buscar horários disponíveis.');
+      setAvailableSlots([]);
+      return;
+    }
     try {
       const response = await axios.get(`/api/professionals/${professional.id}/availability`, {
         params: { date }
       });
       
-      // Se a API retornar os horários ocupados, filtrar dos horários de trabalho
       const occupiedSlots = response.data.occupied_slots || [];
       const available = workingHours.filter(time => !occupiedSlots.includes(time));
       setAvailableSlots(available);
     } catch (error) {
       console.error('Erro ao carregar disponibilidade:', error);
-      // Em caso de erro, assumir que todos os horários estão disponíveis
-      setAvailableSlots(workingHours);
+      // Em caso de erro, assumir que nenhum horário está disponível para evitar agendamentos incorretos
+      setAvailableSlots([]);
+      toast.error('Não foi possível carregar os horários disponíveis para esta data.');
     }
   };
 
@@ -112,6 +119,10 @@ function BookAppointment() {
     
     if (!selectedDate || !selectedTime) {
       toast.error('Por favor, selecione uma data e horário.');
+      return;
+    }
+    if (!professional || !professional.id) {
+      toast.error('Dados do profissional ausentes. Por favor, tente novamente.');
       return;
     }
 
@@ -198,6 +209,7 @@ function BookAppointment() {
     );
   }
 
+  // Se professional for null após o carregamento, exibe mensagem de erro
   if (!professional) {
     return (
       <div className="space-y-6">
@@ -212,10 +224,10 @@ function BookAppointment() {
           <CardContent className="text-center py-12">
             <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Profissional não encontrado
+              Profissional não encontrado ou erro ao carregar.
             </h3>
             <p className="text-gray-500 mb-4">
-              Não foi possível carregar os dados do profissional.
+              Não foi possível carregar os dados do profissional. Por favor, tente novamente.
             </p>
             <Button onClick={() => navigate('/professionals')}>
               Voltar aos Profissionais
@@ -397,4 +409,3 @@ function BookAppointment() {
 }
 
 export default BookAppointment;
-
