@@ -43,8 +43,14 @@ function BookAppointment() {
   ];
 
   useEffect(() => {
+    console.log("useEffect acionado!"); // <--- ADICIONADO PARA DEBUG
+    console.log("professionalId do useParams:", professionalId); // <--- ADICIONADO PARA DEBUG
+    console.log("searchParams.get('professional'):", searchParams.get('professional')); // <--- ADICIONADO PARA DEBUG
+
     // Prioriza professionalId da URL, depois searchParams
     const idToFetch = professionalId || searchParams.get('professional');
+    console.log("ID a ser buscado (idToFetch):", idToFetch); // <--- ADICIONADO PARA DEBUG
+
     if (idToFetch) {
       fetchProfessional(idToFetch);
     } else {
@@ -60,12 +66,14 @@ function BookAppointment() {
   }, [selectedDate, professional]);
 
   const fetchProfessional = async (profId) => {
+    console.log("Chamando fetchProfessional com profId:", profId); // <--- ADICIONADO PARA DEBUG
     try {
       setLoading(true);
       const response = await axios.get(`/api/professionals/${profId}`);
+      console.log("Resposta da API de profissional:", response.data); // <--- ADICIONADO PARA DEBUG
       setProfessional(response.data.professional);
     } catch (error) {
-      console.error('Erro ao carregar profissional:', error);
+      console.error("Erro ao carregar profissional na função fetchProfessional:", error); // <--- ADICIONADO PARA DEBUG
       toast.error('Não foi possível carregar os dados do profissional. Redirecionando...');
       setProfessional(null); // Garante que o estado seja nulo em caso de erro
       navigate('/professionals'); // Redireciona em caso de erro
